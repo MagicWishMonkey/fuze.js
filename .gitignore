@@ -1,0 +1,10 @@
+# Ignore the pycharm project file folder
+# syntax: regexp
+# ^\/.idea$
+glob:.idea/*
+.idea
+*.iml
+
+# Ignore Mac system files
+.DS_Store
+/.DS_Store$

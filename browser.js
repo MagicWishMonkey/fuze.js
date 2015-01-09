@@ -716,47 +716,19 @@ var browser = (function() {
                 return fonts;
             }
 
-            function set_dom_storage(){
-                try {
-                    localStorage.panopticlick = "yea";
-                    sessionStorage.panopticlick = "yea";
-                } catch (ex) { }
-            }
-
-            function test_dom_storage(){
-                var supported = "";
-                try {
-                    if (localStorage.panopticlick == "yea") {
-                        supported += "DOM localStorage: Yes";
-                    } else {
-                        supported += "DOM localStorage: No";
-                    }
-                } catch (ex) { supported += "DOM localStorage: No"; }
-
-                try {
-                    if (sessionStorage.panopticlick == "yea") {
-                        supported += ", DOM sessionStorage: Yes";
-                    } else {
-                        supported += ", DOM sessionStorage: No";
-                    }
-                } catch (ex) { supported += ", DOM sessionStorage: No"; }
-
-                return supported;
-            }
-
-            function test_ie_userdata(){
+            function ie_userdata_available(){
                 try {
                     oPersistDiv.setAttribute("remember", "remember this value");
                     oPersistDiv.save("oXMLStore");
                     oPersistDiv.setAttribute("remember", "overwritten!");
                     oPersistDiv.load("oXMLStore");
                     if ("remember this value" == (oPersistDiv.getAttribute("remember"))) {
-                        return ", IE userData: Yes";
+                        return true;
                     } else {
-                        return ", IE userData: No";
+                        return false;
                     }
                 } catch (ex) {
-                    return ", IE userData: No";
+                    return false;
                 }
             }
 
@@ -818,15 +790,38 @@ var browser = (function() {
                 details.video = "n/a";
             }
 
-            try {
-                var supercookies = test_dom_storage() + test_ie_userdata();
-                details.supercookies = supercookies;
-                fingerprint.push(supercookies);
-            } catch(ex) {
-                //permission denied;
-                details.supercookies = "n/a";
+
+
+            if(ie_userdata_available() === true){
+                details.ie_userdata = true;
+            }else{
+                details.ie_userdata = false;
+
             }
 
+            if('sessionStorage' in window && window.sessionStorage !== null){
+                details.session_storage = true;
+            }else{
+                details.session_storage = false;
+            }
+
+            if('localStorage' in window && window.localStorage !== null){
+                details.local_storage = true;
+            }else{
+                details.local_storage = false;
+            }
+
+
+            if(details.local_storage === true && details.session_storage === true){
+                details.supercookies = true;
+            }else{
+                details.supercookies = false;
+            }
+
+            fingerprint.push("ie_userdata:" + details.ie_userdata);
+            fingerprint.push("session_storage:" + details.session_storage);
+            fingerprint.push("local_storage:" + details.local_storage);
+            fingerprint.push("supercookies:" + details.supercookies);
             var fp = fingerprint.join("|");
             var hash = md5.hash(fp);
             details.fingerprint = hash;
@@ -842,8 +837,8 @@ var browser = (function() {
 
             var details = browser.details();
             var fingerprint = details.fingerprint;
-            browserCookies.set(cookie_name, fingerprint, 120);
-            browserCookies.set("x_browser_details", b64.encode(JSON.stringify(details)));
+            browserCookies.set(cookie_name, fingerprint, 1825);
+            browserCookies.set("x_browser_details", b64.encode(JSON.stringify(details)), 1825);
         }
     };
 })();
@@ -859,6 +854,13 @@ var browserCookies = (function() {
             date.setTime(date.getTime()+(days * 24 * 60 * 60 * 1000));
             var expires = "; expires="+date.toGMTString();
             document.cookie = name + "=" + value + expires + "; path=/";
+            if (window.sessionStorage) {
+                window.sessionStorage.setItem(name, value);
+            }
+
+            if (window.localStorage) {
+                window.localStorage.setItem(name, value);
+            }
         },
         get: function(name){
             var key = name + "=";
@@ -873,8 +875,16 @@ var browserCookies = (function() {
                         return null;
                     return value;
                 }
-
             }
+
+            if (window.localStorage) {
+                var v = window.localStorage.getItem(name);
+                if(v !== undefined && v !== null){
+                    browserCookies.set(name, v, 1825);
+                    return v;
+                }
+            }
+
             return null;
         },
         delete: function(name){
@@ -884,6 +894,13 @@ var browserCookies = (function() {
             date.setTime(date.getTime()+(days * 24 * 60 * 60 * 1000));
             var expires = "; expires="+date.toGMTString();
             document.cookie = name + "=" + value + expires + "; path=/";
+
+
+            if (window.localStorage) {
+                try{
+                    window.localStorage.removeItem(name);
+                }catch(e){}
+            }
         }
     };
 })();

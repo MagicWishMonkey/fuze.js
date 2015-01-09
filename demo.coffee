@@ -14,8 +14,8 @@ class Horse extends Animal
     alert "Galloping..."
     super 45
 
-sam = new Snake "Sammy the Python"
-tom = new Horse "Tommy the Palomino"
-
-sam.move()
-tom.move()
+#sam = new Snake "Sammy the Python"
+#tom = new Horse "Tommy the Palomino"
+#
+#sam.move()
+#tom.move()

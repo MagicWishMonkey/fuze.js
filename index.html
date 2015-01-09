@@ -16,19 +16,35 @@ Hello.
     $(function(){
        //alert("Hello.");
         //Tracker.capture();
-
+        console.log(browserCookies.get("x_browser_fingerprint"));
         browser.track(true);
         var details = browser.details();
 
-        var plugins = details["plugins"];
-        for(var i = 0; i<plugins.length; i++)
-            console.log(plugins[i]);
+//        var plugins = details["plugins"];
+//        for(var i = 0; i<plugins.length; i++)
+//            console.log(plugins[i]);
 
         //console.log(details);
         for(var p in details){
             var v = details[p];
+//            if(p == "plugins"){
+//                for(var i = 0; i< v.length; i++){
+//                    document.writeln("<div>&nbsp;&nbsp;&nbsp;&nbsp;plugin > " + v[i] + "</div>");
+//                }
+//            }else
+//                document.writeln("<div>" + p +": " + v + "</div>");
+
+            if(p == "plugins")
+                continue
             document.writeln("<div>" + p +": " + v + "</div>");
         }
+
+        document.writeln("<br>");
+        document.writeln("<b>plugins</b>");
+        var plugins = details.plugins;
+        for(var i = 0; i<plugins.length; i++)
+            document.writeln("<div>&nbsp;&nbsp;&nbsp;&nbsp;" + plugins[i] + "</div>");
+
     });/**/
 
 </script>

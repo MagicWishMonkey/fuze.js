@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from __future__ import print_function
 import os
 import sys
@@ -572,11 +574,29 @@ def execute(cmd, *params, **kwd):
     return output
 
 
-console.blue("========================================================================================")
-console.blue(" LINTING AND MINIFYING")
-console.blue("========================================================================================")
+console.blue("=============================================================")
+console.blue(" COMPILE > LINT > MINIFY")
+console.blue("=============================================================")
+
+ignore, successes, failures = [], [], []
+files = io.files(os.getcwd(), patterns=".coffee")
+for file in files:
+    name = file.split(os.sep)
+    name = name[len(name) - 1]
+    try:
+        console.yellow("  COMPILE-> %s" % name)
+        execute("coffee -c %s" % name)
+
+        name = "%s.js" % name[0:len(name) - 7]
+        ignore.append(name)
+    except Exception, ex:
+        output = ex.message
+        console.red(output)
+
+if len(ignore) > 0:
+    console.write("")
+
 files = io.files(os.getcwd(), patterns=".js")
-successes, failures  = [], []
 for file in files:
     if file.endswith("jquery.js") is True:
         continue
@@ -585,8 +605,10 @@ for file in files:
 
     name = file.split(os.sep)
     name = name[len(name) - 1]
+    if name in ignore:
+        continue
     try:
-        console.yellow("LINTING: %s" % name)
+        console.yellow("  LINT-> %s" % name)
         execute("jshint %s" % name)
         #console.yellow("%s      - PASSED" % name)
         successes.append(name)
@@ -605,7 +627,7 @@ if len(successes) > 0:
     console.write("")
 
 for name in successes:
-    console.yellow("SHRINKING: %s" % name)
+    console.yellow("  MINIFY-> %s" % name)
     try:
         output = execute("uglifyjs %s -c -m" % name).strip()
         if output.startswith("WARN:"):
@@ -615,7 +637,6 @@ for name in successes:
                     continue
                 output = "\n".join(lines[x:])
                 break
-        # print(output)
 
         mini_name = "%s.min.js" % name[0:len(name) - 3]
         io.write_file(mini_name, output, text=True)

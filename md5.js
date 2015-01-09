@@ -139,10 +139,7 @@ var md5 = (function() {
             function md5blk(s) { /* I figured global was faster.   */
                 var md5blks = [], i; /* Andy King said do it this way. */
                 for (i=0; i<64; i+=4) {
-                    md5blks[i>>2] = s.charCodeAt(i)
-                        + (s.charCodeAt(i+1) << 8)
-                        + (s.charCodeAt(i+2) << 16)
-                        + (s.charCodeAt(i+3) << 24);
+                    md5blks[i>>2] = s.charCodeAt(i) + (s.charCodeAt(i+1) << 8) + (s.charCodeAt(i+2) << 16) + (s.charCodeAt(i+3) << 24);
                 }
                 return md5blks;
             }
@@ -153,8 +150,7 @@ var md5 = (function() {
             {
                 var s='', j=0;
                 for(; j<4; j++)
-                    s += hex_chr[(n >> (j * 8 + 4)) & 0x0F]
-                        + hex_chr[(n >> (j * 8)) & 0x0F];
+                    s += hex_chr[(n >> (j * 8 + 4)) & 0x0F] + hex_chr[(n >> (j * 8)) & 0x0F];
                 return s;
             }
 

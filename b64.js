@@ -95,7 +95,10 @@ var b64 = (function() {
         utf8_decode: function(input){
             var output = "";
             var i = 0;
-            var c = c1 = c2 = 0;
+            var c = 0;
+            var c1 = 0;
+            var c2 = 0;
+            //var c = c1 = c2 = 0;
             while ( i < input.length ) {
                 c = input.charCodeAt(i);
                 if (c < 128) {
